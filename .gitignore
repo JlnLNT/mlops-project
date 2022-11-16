@@ -1,0 +1,4 @@
+#ignoring the data 
+raw_data_meteonet/
+mlruns/
+meteonet/
