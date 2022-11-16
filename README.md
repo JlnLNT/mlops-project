@@ -42,13 +42,16 @@ I'll be using an XGBoost Regressor whose hyperparameters I'll get using Hyperopt
 
 I put the postprocessed csv from Meteonet in the `data` folder in the parent directory. The data can be visualized using the notebook `data_viz.ipynb`. It also creates the train and test dataset.
 
-## Training the model:
+## Training the model with experiment tracking and orchestration:
 
 To train the model, I go through 3 steps:
 
 1. Read the data
 2. Run a Hyperoptimzer for XGBoost hyperparameters, store results and models in the `hpo-xgboost-wind` experiment
 3. Automatically the best model in the parent directory
+
+All the steps can be followed thanks to prefect 
+
 
 
 ## Deploying the model:

@@ -12,21 +12,11 @@ from mlflow.entities import ViewType
 
 import pickle
 
-MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
-EXPERIMENT_NAME = "hpo-xgboost-wind"
 
-client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
+from prefect import task, flow, get_run_logger
 
-client.create_experiment(name=EXPERIMENT_NAME)
-
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-mlflow.set_experiment(EXPERIMENT_NAME)
-
-exp_id = mlflow.set_experiment(EXPERIMENT_NAME).experiment_id
-
-
-
-def get_data_matrix(path_train = "data/train.csv", path_test = "data/test.csv"):
+@task
+def get_data(path_train = "data/train.csv", path_test = "data/test.csv"):
     """Getting train and test data"""
     df_train = pd.read_csv(path_train)
     df_test = pd.read_csv(path_test)
@@ -36,15 +26,14 @@ def get_data_matrix(path_train = "data/train.csv", path_test = "data/test.csv"):
 
     y_train = df_train['mean_power']
     y_test = df_test['mean_power']
-
     
     
     return X_train, y_train, X_test, y_test
 
-
+@task
 def run_opt_xgboost(X_train, y_train, X_test, y_test):
     """Training the model"""
-
+    logger = get_run_logger()
     train = xgb.DMatrix(X_train, label=y_train)
     test = xgb.DMatrix(X_test, label=y_test)
 
@@ -65,6 +54,7 @@ def run_opt_xgboost(X_train, y_train, X_test, y_test):
             y_pred = booster.predict(test)
             rmse = mean_squared_error(y_test, y_pred, squared=False)
             mlflow.log_metric("rmse", rmse)
+            logger.info(f"The MSE of training is: {rmse}")
 
         return {'loss': rmse, 'status': STATUS_OK}
 
@@ -82,11 +72,10 @@ def run_opt_xgboost(X_train, y_train, X_test, y_test):
         fn=objective,
         space=search_space,
         algo=tpe.suggest,
-        max_evals=50,
+        max_evals=3,
         trials=Trials()
     )
     
-
 def save_best_model():
     runs = client.search_runs(
     experiment_ids=exp_id   ,
@@ -104,17 +93,37 @@ def save_best_model():
     xgboost_model = mlflow.xgboost.load_model(logged_model)
 
     file_name = "xgb_reg.pkl"
-
+    
     # save
     pickle.dump(xgboost_model, open(file_name, "wb"))
 
+@flow
+def main():
+    X_train, y_train, X_test, y_test = get_data()
+    run_opt_xgboost(X_train, y_train, X_test, y_test)
+    save_best_model()
+    
+    
 
     
 if __name__ == '__main__':
+    MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
+    EXPERIMENT_NAME = "hpo-xgboost-wind"
+
+    client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
+    exisiting_exp = [exp.name for exp in client.search_experiments()]
     
-    X_train, y_train, X_test, y_test = get_data_matrix()
-    run_opt_xgboost(X_train, y_train, X_test, y_test)
-    save_best_model()
+    if EXPERIMENT_NAME not in exisiting_exp:
+        client.create_experiment(name=EXPERIMENT_NAME)
+
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(EXPERIMENT_NAME)
+
+    exp_id = mlflow.set_experiment(EXPERIMENT_NAME).experiment_id
+
+    main()
+    
+    
     
     
     
