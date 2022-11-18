@@ -1,11 +1,9 @@
 import pickle
 
-from flask import Flask, request, jsonify
 import numpy as np
 
 from xgboost import DMatrix
-
-import serverless_wsgi
+import json
 
 import os
 
@@ -34,13 +32,10 @@ def predict(model, X):
     return float(preds[0])
 
 
-app = Flask('wind-potential-prediction')
 
 
-@app.route("/")
-def predict_endpoint():
-    
-    coordinates = request.get_json()
+def predict_endpoint(coordinates):   
+
     
     lat = coordinates['lat']
     lon = coordinates['lon']
@@ -50,12 +45,16 @@ def predict_endpoint():
 
     result = {
         'wind potential': pred,
-        'running_docker' : os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
+        'lat' : lat,
+        'lon' : lon
     }
 
-    return jsonify(result)
+    return result
 
 
 def handler(event, context):
-    return serverless_wsgi.handle_request(app, event, context)
+    print('Lambda invoked')
+    decoded_event = json.loads(event['body']) 
+    return predict_endpoint(decoded_event)
+
 
