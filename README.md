@@ -1,15 +1,3 @@
-# Renewable potential in South-east France 
-## Personal project for ML-OPS ZoomCamp
-
-The goal of this project is to apply everything I learned in this course and build an end-to-end machine learning project.
-
-
-
-
-## Model
-
-
-
 # MLOps Zoomcamp final project: Renewable potential in South-east France 
 
 The goal of this project is to apply everything I learned in this course and build an end-to-end machine learning project.
@@ -50,16 +38,48 @@ To train the model, I go through 3 steps:
 2. Run a Hyperoptimzer for XGBoost hyperparameters, store results and models in the `hpo-xgboost-wind` experiment
 3. Automatically the best model in the parent directory
 
-All the steps can be followed thanks to prefect 
+Both experiment tracking and model registry are used and the workflow is fully deployed in Prefect.
 
 
 
 ## Deploying the model:
 
-The model is deployed using a Cloud Functions Function that's set to be triggered by the data bucket. If one of the Data Bucket's files is uploaded or changed, the Function will automatically get the model and preprocessors from the model bucket and run them on the `future.csv` file on the Data Bucket.
+The model is accessible via an API hosyed in AWS thanks to Lambda and API Gateway.
+A specific container has been created to be compatible with Lambda function. The lambda function is linked to API gateway and the model can be used using a POST method on the following adress: https://61bmqgucoe.execute-api.eu-west-3.amazonaws.com/postLocation
+
+The json fed into the POST method shall be the GPS coordinates of the location where the available wind power shall be computed:
+
+```
+location = {
+    "lat": 43.8,
+    "lon": 6.1,
+}
+```
+
+The API will return the wind potential of the location specified and the GPS coordinates such as below:
+```
+{'wind potential': 87.01605987548828,
+ 'lat': 43.8, 
+ 'lon': 6.1
+ }
+```
+
 
 ## Monitoring:
-For monitoring, I've used a simple EvidentlyAI HTML report since there is no online deployment. In case the reference score is considerably better than the current score, it will send an email alert.
+
+For monitoring, a simple script in the monitoring folder is used.
+To run the monitoring for year XXXX, type in the terminal: 
+```
+python run_monitoring XXXX 
+```
+It will ouput the RMSE the deployed model on the test stations and the RMSE of XXXX year on the test stations and the new stations.
+If the two values are judged two far from each other, an action will have to be done to retrain the model on larger data or investigate why the model performance changed.
+
+
+## Testing:
+
+
+
 
 # Running the files:
 
