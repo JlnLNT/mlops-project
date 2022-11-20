@@ -73,7 +73,7 @@ def process_data(df, chunk):
 
 if __name__ == "__main__":
     
-    YEARS = [2016, 2017, 2018]
+    YEARS = [2016, 2017]
     PATH_SAVE = "data/dataset.csv"
     df = pd.DataFrame()
     for year in YEARS:
