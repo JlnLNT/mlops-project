@@ -15,11 +15,9 @@ I created a dataset for my model, it comes from the wind speed recording of 222 
 The data used for the models can be found [here](https://meteonet.umr-cnrm.fr/dataset/data/SE/ground_stations/).
 I post processed the data by computing the average wind speed to the power of 3 to have an estimate of the wind power at the location of all stations.
 
-The model used here is very basic and might not be relevant because the purpose of this project is to use ML-OPS practices and is not focused on the performance and relevancy of a model.
+The model used here is very basic and is not made to be relevant because the purpose of this project is to use ML-OPS practices and is not focused on the performance and relevancy of a model.
 
-and try to predict whether or not a client is going to churn or not in this quarter based on several parameters on the client themselves, as well as their consumption figures.
-
-To assess the performance of the model, I'll be using an the RMSE which is a classic metric for regression.
+The years 2016 & 2017 will be used for training/testing and the year 2018 will be used for monitoring.
 
 
 ### Model Used:
@@ -68,9 +66,9 @@ The API will return the wind potential of the location specified and the GPS coo
 ## Monitoring:
 
 For monitoring, a simple script in the monitoring folder is used.
-To run the monitoring for year XXXX, type in the terminal: 
+To run the monitoring for year 2018, type in the terminal: 
 ```
-python run_monitoring XXXX 
+python run_monitoring 2018 
 ```
 It will ouput the RMSE the deployed model on the test stations and the RMSE of XXXX year on the test stations and the new stations.
 If the two values are judged two far from each other, an action will have to be done to retrain the model on larger data or investigate why the model performance changed.
