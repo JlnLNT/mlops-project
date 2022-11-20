@@ -26,8 +26,8 @@ def get_data(path_train = "data/train.csv", path_test = "data/test.csv"):
 
     y_train = df_train['mean_power']
     y_test = df_test['mean_power']
-    
-    
+
+
     return X_train, y_train, X_test, y_test
 
 @task
@@ -40,8 +40,8 @@ def run_opt_xgboost(X_train, y_train, X_test, y_test):
     mlflow.xgboost.autolog()
 
     def objective(params):
-        
-        with mlflow.start_run():    
+
+        with mlflow.start_run():
             mlflow.set_tag("model", "xgboost")
             mlflow.log_params(params)
             booster = xgb.train(
@@ -56,7 +56,10 @@ def run_opt_xgboost(X_train, y_train, X_test, y_test):
             mlflow.log_metric("rmse", rmse)
             logger.info(f"The MSE of training is: {rmse}")
 
+
+
         return {'loss': rmse, 'status': STATUS_OK}
+
 
     search_space = {
         'max_depth': scope.int(hp.quniform('max_depth', 4, 100, 1)),
@@ -75,7 +78,7 @@ def run_opt_xgboost(X_train, y_train, X_test, y_test):
         max_evals=10,
         trials=Trials()
     )
-    
+
 def save_best_model():
     runs = client.search_runs(
     experiment_ids=exp_id   ,
@@ -93,7 +96,7 @@ def save_best_model():
     xgboost_model = mlflow.xgboost.load_model(logged_model)
 
     file_name = "xgb_reg.pkl"
-    
+
     # save
     pickle.dump(xgboost_model, open(file_name, "wb"))
 
@@ -102,17 +105,17 @@ def main():
     X_train, y_train, X_test, y_test = get_data()
     run_opt_xgboost(X_train, y_train, X_test, y_test)
     save_best_model()
-    
-    
 
-    
+
+
+
 if __name__ == '__main__':
     MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
     EXPERIMENT_NAME = "hpo-xgboost-wind"
 
     client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
     exisiting_exp = [exp.name for exp in client.search_experiments()]
-    
+
     if EXPERIMENT_NAME not in exisiting_exp:
         client.create_experiment(name=EXPERIMENT_NAME)
 
@@ -122,8 +125,3 @@ if __name__ == '__main__':
     exp_id = mlflow.set_experiment(EXPERIMENT_NAME).experiment_id
 
     main()
-    
-    
-    
-    
-    
