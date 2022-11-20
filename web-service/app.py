@@ -9,19 +9,8 @@ import os
 
 
 def load_model():
-    """ This function loads the model either it is running in a docker container or locally
-    Indeed in the two cases, the model is not at the same location"""
     
-    env_var = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
-    if env_var:
-        print('I am running in a Docker container') 
-
-        with open('./xgb_reg.pkl', 'rb') as f_in:
-            model = pickle.load(f_in)
-    else:        
-         print('I am NOT running in a Docker container')      
-
-         with open('./xgb_reg.pkl', 'rb') as f_in:
+    with open('./xgb_reg.pkl', 'rb') as f_in:
             model = pickle.load(f_in)
             
     return model

@@ -1,4 +1,7 @@
-#ignoring the data 
+#ignoring the folders 
 raw_data_meteonet/
 mlruns/
-meteonet/
+meteonet/*
+
+#except
+!meteonet/meteonet_toolbox/

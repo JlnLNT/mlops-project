@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 ### This script generates the dataset for this project from the meteonet's raw data
 def check_locations(df_s, tolerance=1e-2):
@@ -70,7 +71,6 @@ def process_data(df, chunk):
     return df
 
 
-
 if __name__ == "__main__":
     
     YEARS = [2016, 2017]
@@ -85,5 +85,18 @@ if __name__ == "__main__":
             df = process_data(df, chunk)
         
     df.to_csv(PATH_SAVE)
+    
+    ## generating test and train dataset
+    
+    df = df[df['mean_power']<500] ## removing the outliers
+
+  
+    TEST_SIZE = 0.3
+    df_train, df_test = train_test_split(df, test_size = TEST_SIZE, random_state= 123 )
+    
+    PATH_TRAIN = "data/train.csv"
+    PATH_TEST = "data/test.csv"
+    df_train.to_csv(PATH_TRAIN)
+    df_test.to_csv(PATH_TEST)
             
         

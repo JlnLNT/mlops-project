@@ -72,7 +72,7 @@ def run_opt_xgboost(X_train, y_train, X_test, y_test):
         fn=objective,
         space=search_space,
         algo=tpe.suggest,
-        max_evals=3,
+        max_evals=10,
         trials=Trials()
     )
     
