@@ -2,6 +2,7 @@
 raw_data_meteonet/
 mlruns/
 meteonet/*
+.vscode/
 
 #except
 !meteonet/meteonet_toolbox/
