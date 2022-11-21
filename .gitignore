@@ -1,4 +1,4 @@
-#ignoring the folders 
+#ignoring the folders
 raw_data_meteonet/
 mlruns/
 meteonet/*
