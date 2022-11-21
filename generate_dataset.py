@@ -58,6 +58,7 @@ def combine_reduced_df(df0, df1):
 
         for col in df_j.columns:
             if col[-1] == "1":
+
                 df_j.drop(col, axis=1, inplace=True)
 
     return df_j
@@ -72,31 +73,28 @@ def process_data(df, chunk):
 
 
 if __name__ == "__main__":
-    
+
     YEARS = [2016, 2017]
     PATH_SAVE = "data/dataset.csv"
     df = pd.DataFrame()
     for year in YEARS:
-                
+
         FILENAME = f"raw_data_meteonet/SE{year}.csv"
-        
-        CHUNKSIZE = 10 ** 6
+
+        CHUNKSIZE = 10**6
         for chunk in pd.read_csv(FILENAME, chunksize=CHUNKSIZE):
             df = process_data(df, chunk)
-        
-    df.to_csv(PATH_SAVE)
-    
-    ## generating test and train dataset
-    
-    df = df[df['mean_power']<500] ## removing the outliers
 
-  
+    df.to_csv(PATH_SAVE)
+
+    ## generating test and train dataset
+
+    df = df[df["mean_power"] < 500]  ## removing the outliers
+
     TEST_SIZE = 0.3
-    df_train, df_test = train_test_split(df, test_size = TEST_SIZE, random_state= 123 )
-    
+    df_train, df_test = train_test_split(df, test_size=TEST_SIZE, random_state=123)
+
     PATH_TRAIN = "data/train.csv"
     PATH_TEST = "data/test.csv"
     df_train.to_csv(PATH_TRAIN)
     df_test.to_csv(PATH_TEST)
-            
-        
